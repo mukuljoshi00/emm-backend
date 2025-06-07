@@ -1,0 +1,66 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.noviro'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'com.google.apis:google-api-services-androidmanagement:v1-rev20240724-2.0.0'
+	implementation 'com.google.auth:google-auth-library-oauth2-http:1.35.0'
+	implementation 'com.google.http-client:google-http-client-gson:1.47.0'
+	implementation 'com.google.http-client:google-http-client-jackson2:1.41.8'
+
+	// Google API Client for Android Management
+//	implementation 'com.google.apis:google-api-services-androidmanagement:v1-rev20221006-2.0.0'
+	// Google OAuth2 Client
+//	implementation 'com.google.auth:google-auth-library-oauth2-http:1.16.0'
+//	// Google HTTP Client with Gson
+//	implementation 'com.google.http-client:google-http-client-gson:1.39.2'
+	// Jackson Databind (for JSON)
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.postgresql:postgresql:42.7.3'
+
+
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	// Swagger OpenAPI
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	implementation 'com.google.zxing:core:3.5.1'
+	implementation 'com.google.zxing:javase:3.5.1'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
