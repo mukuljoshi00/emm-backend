@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  emm-backend:
+    build: .
+    ports:
+      - "8085:8080"
+    container_name: emm-backend
