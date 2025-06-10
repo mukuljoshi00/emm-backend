@@ -5,6 +5,7 @@ import com.google.api.services.androidmanagement.v1.model.*;
 import com.google.zxing.WriterException;
 import com.noviro.emm_backend.qr.QRService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,6 +15,10 @@ public class EnterpriseService {
 
     @Autowired
     private AndroidManagement androidManagement;
+
+    @Autowired
+    @Qualifier("androidAccessToken")
+    private String androidAccessToken;
 
     @Autowired
     QRService qrService;
@@ -81,5 +86,9 @@ public class EnterpriseService {
     public ListDevicesResponse listDevices(String enterpriseName) throws IOException {
         AndroidManagement.Enterprises.Devices.List request = androidManagement.enterprises().devices().list(enterpriseName);
         return request.execute();
+    }
+
+    public String getAndroidAccessToken() {
+        return androidAccessToken;
     }
 }

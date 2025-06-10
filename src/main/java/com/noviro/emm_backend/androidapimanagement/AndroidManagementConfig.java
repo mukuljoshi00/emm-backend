@@ -42,4 +42,19 @@ public class AndroidManagementConfig {
                 .setApplicationName("Your App Name")
                 .build();
     }
+
+    @Bean
+    public  String androidAccessToken() throws Exception {
+        byte[] decodedJson = Base64.getDecoder().decode(serviceAccountBase64);
+        // Wrap decoded bytes into InputStream
+        ByteArrayInputStream jsonStream = new ByteArrayInputStream(decodedJson);
+        // Create credentials from InputStream
+        GoogleCredentials credentials = GoogleCredentials.fromStream(jsonStream)
+                .createScoped(Collections.singleton(ANDROID_MANAGEMENT_SCOPE));
+        credentials.refreshIfExpired();
+        String accessToken = credentials.getAccessToken().getTokenValue();
+        System.out.println("Access Token: " + accessToken);
+
+        return accessToken;
+    }
 }

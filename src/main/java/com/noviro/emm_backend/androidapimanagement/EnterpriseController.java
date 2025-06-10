@@ -1,6 +1,15 @@
 package com.noviro.emm_backend.androidapimanagement;
 
-import com.google.api.services.androidmanagement.v1.model.*;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.androidmanagement.v1.model.Device;
+import com.google.api.services.androidmanagement.v1.model.ListDevicesResponse;
+import com.google.api.services.androidmanagement.v1.model.Policy;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,12 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
 
 @RestController
 @RequestMapping("/api/enterprise")
@@ -63,16 +66,29 @@ public class EnterpriseController {
         return pngOutputStream.toByteArray();
     }
 
-    @PostMapping("/policy")
-    public Policy createOrUpdatePolicy(@RequestParam String enterpriseName,
-                                       @RequestParam String policyId,
-                                       @RequestBody Policy policy) throws IOException {
-        return enterpriseService.createOrUpdatePolicy(enterpriseName, policyId, policy);
+    @PostMapping("/declare/policy")
+    public ResponseEntity<Policy> createOrUpdatePolicy(@RequestParam String enterpriseName,
+                                                       @RequestParam String policyId,
+                                                       @RequestBody String policyJson) {
+        try {
+            JsonFactory jsonFactory = new JacksonFactory();
+            Policy policy = jsonFactory.fromString(policyJson, Policy.class);
+            Policy createdPolicy = enterpriseService.createOrUpdatePolicy(enterpriseName, policyId, policy);
+            return ResponseEntity.ok(createdPolicy);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/devices")
     public List<Device> listDevices(@RequestParam String enterpriseName) throws IOException {
         ListDevicesResponse response = enterpriseService.listDevices(enterpriseName);
         return response.getDevices();
+    }
+
+    @GetMapping("/token")
+    public String getToken() throws IOException {
+        return enterpriseService.getAndroidAccessToken();
     }
 }
