@@ -132,6 +132,7 @@ public class EnterpriseController {
         if (deviceLocationOpt.isPresent()) {
             DeviceLocation deviceLocation = deviceLocationOpt.get();
             deviceLocation.setAmDeviceSerialNumber(latestSerial);
+            deviceLocation.setLinkedToDevice(true);
             deviceLocationRepository.save(deviceLocation);
             return ResponseEntity.ok(deviceLocation);
         } else {
