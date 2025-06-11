@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface DeviceLocationRepository extends JpaRepository<DeviceLocation, Long> {
-    Optional<DeviceLocation> findBySerialNumber(String serialNumber);
-}
+    Optional<DeviceLocation> findByAmDeviceSerialNumber(String serialNumber);
 
+    Optional<DeviceLocation> findByDeviceSerialNumber(String serialNumber);
+
+    Optional<DeviceLocation> findTopByLinkedToDeviceFalseAndAmDeviceSerialNumberIsNullOrderByCreatedAtDesc();
+}

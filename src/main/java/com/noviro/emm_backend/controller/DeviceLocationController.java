@@ -20,9 +20,12 @@ public class DeviceLocationController {
 
     @PostMapping("/update")
     public ResponseEntity<?> updateLocation(@RequestBody LocationUpdateRequest request) {
-        Optional<DeviceLocation> existing = deviceLocationRepository.findBySerialNumber(request.getSerialNumber());
+        Optional<DeviceLocation> existing = deviceLocationRepository.findByDeviceSerialNumber(request.getSerialNumber());
         DeviceLocation location = existing.orElseGet(DeviceLocation::new);
-        location.setSerialNumber(request.getSerialNumber());
+        location.setDeviceSerialNumber(request.getSerialNumber());
+        if (location.getCreatedAt() == null) {
+            location.setCreatedAt(LocalDateTime.now());
+        }
         location.setLatitude(request.getLatitude());
         location.setLongitude(request.getLongitude());
         location.setLastUpdated(LocalDateTime.now());
@@ -30,15 +33,17 @@ public class DeviceLocationController {
         return ResponseEntity.ok().build();
     }
 
+
+
     @GetMapping("/{serialNumber}")
     public ResponseEntity<?> getLocation(@PathVariable String serialNumber) {
-        Optional<DeviceLocation> locationOpt = deviceLocationRepository.findBySerialNumber(serialNumber);
+        Optional<DeviceLocation> locationOpt = deviceLocationRepository.findByAmDeviceSerialNumber(serialNumber);
         if (locationOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         DeviceLocation location = locationOpt.get();
         Map<String, Object> response = new HashMap<>();
-        response.put("serialNumber", location.getSerialNumber());
+        response.put("serialNumber", location.getAmDeviceSerialNumber());
         response.put("latitude", location.getLatitude());
         response.put("longitude", location.getLongitude());
         response.put("lastUpdated", location.getLastUpdated());
@@ -50,12 +55,29 @@ public class DeviceLocationController {
         private Double latitude;
         private Double longitude;
 
-        public String getSerialNumber() { return serialNumber; }
-        public void setSerialNumber(String serialNumber) { this.serialNumber = serialNumber; }
-        public Double getLatitude() { return latitude; }
-        public void setLatitude(Double latitude) { this.latitude = latitude; }
-        public Double getLongitude() { return longitude; }
-        public void setLongitude(Double longitude) { this.longitude = longitude; }
+        public String getSerialNumber() {
+            return serialNumber;
+        }
+
+        public void setSerialNumber(String serialNumber) {
+            this.serialNumber = serialNumber;
+        }
+
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(Double latitude) {
+            this.latitude = latitude;
+        }
+
+        public Double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(Double longitude) {
+            this.longitude = longitude;
+        }
     }
 }
 

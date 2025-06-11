@@ -10,11 +10,14 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.noviro.emm_backend.model.DeviceLocation;
+import com.noviro.emm_backend.repository.DeviceLocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
@@ -27,7 +30,10 @@ public class EnterpriseController {
 
     @Autowired
     private EnterpriseService enterpriseService;
-//
+
+    @Autowired
+    private DeviceLocationRepository deviceLocationRepository;
+
 //    @PostMapping("/create")
 //    public Enterprise createEnterprise(@RequestParam String displayName) throws IOException {
 //        return enterpriseService.createEnterprise(displayName);
@@ -103,5 +109,33 @@ public class EnterpriseController {
     @GetMapping("/token")
     public String getToken() throws IOException {
         return enterpriseService.getAndroidAccessToken();
+    }
+
+    @Transactional
+    @PostMapping("/latest-enrolled-device")
+    public ResponseEntity<?> updateLatestDeviceLocation(@RequestParam String enterpriseName) throws IOException {
+        ListDevicesResponse response = enterpriseService.listDevices(enterpriseName);
+        List<Device> devices = response.getDevices();
+        if (devices == null || devices.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No devices found");
+        }
+        devices.sort((d1, d2) -> {
+            if (d1.getEnrollmentTime() == null || d2.getEnrollmentTime() == null) return 0;
+            return d2.getEnrollmentTime().compareTo(d1.getEnrollmentTime());
+        });
+        Device latestDevice = devices.get(0);
+        String latestSerial = latestDevice.getHardwareInfo() != null ? latestDevice.getHardwareInfo().getSerialNumber() : null;
+        if (latestSerial == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Latest device does not have a serial number");
+        }
+        var deviceLocationOpt = deviceLocationRepository.findTopByLinkedToDeviceFalseAndAmDeviceSerialNumberIsNullOrderByCreatedAtDesc();
+        if (deviceLocationOpt.isPresent()) {
+            DeviceLocation deviceLocation = deviceLocationOpt.get();
+            deviceLocation.setAmDeviceSerialNumber(latestSerial);
+            deviceLocationRepository.save(deviceLocation);
+            return ResponseEntity.ok(deviceLocation);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No matching DeviceLocation found");
+        }
     }
 }
