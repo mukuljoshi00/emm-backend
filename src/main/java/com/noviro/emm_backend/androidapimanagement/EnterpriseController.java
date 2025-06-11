@@ -87,6 +87,19 @@ public class EnterpriseController {
         return response.getDevices();
     }
 
+    @DeleteMapping("/{enterpriseId}/{deviceId}")
+    public ResponseEntity<Void> deleteDevice(
+            @PathVariable String enterpriseId,
+            @PathVariable String deviceId) {
+        String deviceName = String.format("enterprises/%s/devices/%s", enterpriseId, deviceId);
+        try {
+            enterpriseService.deleteDevice(deviceName);
+            return ResponseEntity.noContent().build(); // 204
+        } catch (IOException e) {
+            return ResponseEntity.status(500).build(); // or custom error handling
+        }
+    }
+
     @GetMapping("/token")
     public String getToken() throws IOException {
         return enterpriseService.getAndroidAccessToken();

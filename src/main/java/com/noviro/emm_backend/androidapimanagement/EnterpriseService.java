@@ -88,6 +88,11 @@ public class EnterpriseService {
         return request.execute();
     }
 
+    public void deleteDevice(String deviceName) throws IOException {
+        androidManagement.enterprises().devices().delete(deviceName).execute();
+    }
+
+
     public String getAndroidAccessToken() {
         return androidAccessToken;
     }

@@ -1,5 +1,6 @@
 package com.noviro.emm_backend.qr;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -14,12 +15,29 @@ import java.io.IOException;
 @Service
 public class QRService {
 
+//    public byte[] generateQRCode(Object data, int width, int height) throws WriterException, IOException {
+//        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        String jsonData = objectMapper.writeValueAsString(data);
+//
+//        BitMatrix bitMatrix = qrCodeWriter.encode(jsonData, BarcodeFormat.QR_CODE, width, height);
+//
+//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+//
+//        return outputStream.toByteArray();
+//    }
+
+
+
     public byte[] generateQRCode(Object data, int width, int height) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonData = objectMapper.writeValueAsString(data);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false); // optional
 
-        BitMatrix bitMatrix = qrCodeWriter.encode(jsonData, BarcodeFormat.QR_CODE, width, height);
+//        String jsonData = objectMapper.writeValueAsString(data);
+
+        BitMatrix bitMatrix = qrCodeWriter.encode(data.toString(), BarcodeFormat.QR_CODE, width, height);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
