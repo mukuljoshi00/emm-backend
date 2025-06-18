@@ -49,7 +49,7 @@ public class DeviceLocationController {
             location.setAndroidId(request.androidId);
             location.setDeviceIdentifier(request.deviceIdentifier);
             System.out.println(ob.writeValueAsString(location));
-            if (!location.isLinkedToDevice()) {
+            if (location.isLinkedToDevice()) {
                 deviceLocationRepository.save(location);
                 System.out.println("device already linked");
                 return ResponseEntity.ok().build();
