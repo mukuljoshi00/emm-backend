@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -40,11 +41,11 @@ public class DeviceLocationController {
             DeviceLocation location = existing.orElseGet(DeviceLocation::new);
             location.setDeviceSerialNumber(request.getSerialNumber());
             if (location.getCreatedAt() == null) {
-                location.setCreatedAt(LocalDateTime.now());
+                location.setCreatedAt(new Date());
             }
             location.setLatitude(request.getLatitude());
             location.setLongitude(request.getLongitude());
-            location.setLastUpdated(LocalDateTime.now());
+            location.setLastUpdated(new Date());
             location.setAndroidId(request.androidId);
             location.setDeviceIdentifier(request.deviceIdentifier);
             System.out.println(ob.writeValueAsString(location));
