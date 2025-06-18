@@ -17,7 +17,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/all")
-     public List<Employee> getAllEmployees(@RequestParam String organizationId) {
+     public List<Employee> getAllEmployees(@RequestParam(required = false) String organizationId) {
          return employeeService.getAllEmployees(organizationId);
      }
 

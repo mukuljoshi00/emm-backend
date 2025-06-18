@@ -1,5 +1,8 @@
 package com.noviro.emm_backend.startup;
 
+import com.noviro.emm_backend.model.Employee;
+import com.noviro.emm_backend.repository.EmployeeRepository;
+import com.noviro.emm_backend.service.EmployeeService;
 import com.noviro.emm_backend.service.OrganizationService;
 import com.noviro.emm_backend.model.Organization;
 import com.noviro.emm_backend.model.Role;
@@ -59,6 +62,65 @@ public class DataInitializer {
                 user.setRole(Role.USER);
                 user.setOrganizationId(org.getId());
                 userRepository.save(user);
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner initDataEmployee(
+            EmployeeRepository userRepository,
+            EmployeeService organizationService, EmployeeRepository employeeRepository) {
+        return args -> {
+            // Create super admin if not exists
+            if (employeeRepository.findEmployeeByEmail("pradeep@noviro.com").isEmpty()) {
+                Employee employee = new Employee();
+                employee.setId(UUID.randomUUID());
+                employee.setEmail("pradeep@noviro.com");
+                employee.setName("pradeep");
+                employee.setPosition("Software Engineer");
+                employee.setDepartment("Development");
+
+                employeeRepository.save(employee);
+            }
+
+            if (employeeRepository.findEmployeeByEmail("anand@noviro.com").isEmpty()) {
+                Employee employee = new Employee();
+                employee.setId(UUID.randomUUID());
+                employee.setEmail("anand@noviro.com");
+                employee.setName("anand");
+                employee.setPosition("Software Engineer");
+                employee.setDepartment("Development");
+
+                employeeRepository.save(employee);
+            }
+            if (employeeRepository.findEmployeeByEmail("pavan@noviro.com").isEmpty()) {
+                Employee employee = new Employee();
+                employee.setId(UUID.randomUUID());
+                employee.setEmail("pavan@noviro.com");
+                employee.setName("pavan");
+                employee.setPosition("Principal Engineer");
+                employee.setDepartment("Development");
+
+                employeeRepository.save(employee);
+            }
+            if (employeeRepository.findEmployeeByEmail("mukul@noviro.com").isEmpty()) {
+                Employee employee = new Employee();
+                employee.setId(UUID.randomUUID());
+                employee.setEmail("mukul@noviro.com");
+                employee.setName("mukul");
+                employee.setPosition("Project Manager");
+                employee.setDepartment("Management");
+
+                employeeRepository.save(employee);
+            }
+            if (employeeRepository.findEmployeeByEmail("mahesh@noviro.com").isEmpty()) {
+                Employee employee = new Employee();
+                employee.setId(UUID.randomUUID());
+                employee.setEmail("mahesh@noviro.com");
+                employee.setName("mahesh");
+                employee.setPosition("Human Resources");
+                employee.setDepartment("Management");
+                employeeRepository.save(employee);
             }
         };
     }

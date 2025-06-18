@@ -19,7 +19,7 @@ public class EmployeeService {
 
 
     public List<Employee> getAllEmployees(String organizationId) {
-        List<Employee> employeeList = employeeRepository.findEmployeesByOrganizationId(UUID.fromString(organizationId));
+        List<Employee> employeeList = employeeRepository.findAll();
         return employeeList;
     }
 
