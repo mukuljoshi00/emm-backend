@@ -8,7 +8,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "devices")
-public class it Device {
+public class Device {
     @Id
     private UUID id;
 
