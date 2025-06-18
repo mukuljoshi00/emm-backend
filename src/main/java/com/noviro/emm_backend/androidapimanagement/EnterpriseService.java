@@ -42,7 +42,7 @@ public class EnterpriseService {
      */
     public byte[]  createEnrollmentToken(String enterpriseName, String policyName, String userName) throws IOException, WriterException {
         EnrollmentToken token = new EnrollmentToken()
-                .setPolicyName("policy1");
+                .setPolicyName(policyName);
         if (userName != null && !userName.isEmpty()) {
             token.setUser(new User().setAccountIdentifier(userName));
         }
@@ -76,8 +76,19 @@ public class EnterpriseService {
     public Policy createOrUpdatePolicy(String enterpriseName, String policyId, Policy policy) throws IOException {
         AndroidManagement.Enterprises.Policies.Patch request = androidManagement.enterprises()
                 .policies()
-                .patch(enterpriseName + "/policies/" + "policy1", policy);
+                .patch(enterpriseName + "/policies/" + policyId, policy);
         return request.execute();
+    }
+
+
+    public void updateDevicePolicy(String enterpriseId, String deviceName, String newPolicyId) throws IOException {
+        String newPolicyName = String.format("%s/policies/%s", enterpriseId, newPolicyId);
+        Device deviceUpdate = new Device().setPolicyName(newPolicyName);
+        AndroidManagement.Enterprises.Devices.Patch patchRequest =
+                androidManagement.enterprises().devices().patch(deviceName, deviceUpdate);
+        patchRequest.setUpdateMask("policyName");
+        patchRequest.execute();
+        System.out.println("Policy updated to " + newPolicyName + " for device: " + deviceName);
     }
 
     /**
@@ -87,6 +98,8 @@ public class EnterpriseService {
         AndroidManagement.Enterprises.Devices.List request = androidManagement.enterprises().devices().list(enterpriseName);
         return request.execute();
     }
+
+
 
     public void deleteDevice(String deviceName) throws IOException {
         androidManagement.enterprises().devices().delete(deviceName).execute();

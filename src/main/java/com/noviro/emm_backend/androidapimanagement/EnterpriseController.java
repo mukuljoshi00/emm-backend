@@ -72,6 +72,19 @@ public class EnterpriseController {
         return pngOutputStream.toByteArray();
     }
 
+    @PutMapping("/device/policy")
+    public ResponseEntity updateDevicePolicy(@RequestParam String enterpriseName,
+                                                       @RequestParam String newPolicyId,
+                                                       @RequestParam String deviceId) {
+        try {
+            enterpriseService.updateDevicePolicy(enterpriseName,deviceId, newPolicyId);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PostMapping("/declare/policy")
     public ResponseEntity<Policy> createOrUpdatePolicy(@RequestParam String enterpriseName,
                                                        @RequestParam String policyId,
@@ -86,6 +99,7 @@ public class EnterpriseController {
             return ResponseEntity.badRequest().build();
         }
     }
+
 
     @GetMapping("/devices")
     public List<Device> listDevices(@RequestParam String enterpriseName) throws IOException {

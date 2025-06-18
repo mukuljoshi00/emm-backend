@@ -9,4 +9,6 @@ import java.util.UUID;
 @Repository
 public interface OrganizationRepository extends JpaRepository<Organization, UUID> {
     Optional<Organization> findByName(String name);
+
+    Optional<Organization> findByEnterpriseName(String enterpriseName);
 }

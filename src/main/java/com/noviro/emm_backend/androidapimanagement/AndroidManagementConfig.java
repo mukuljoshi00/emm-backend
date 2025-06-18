@@ -25,13 +25,8 @@ public class AndroidManagementConfig {
 
     @Bean
     public AndroidManagement androidManagement() throws GeneralSecurityException, Exception {
-        // Decode the Base64 string to get JSON bytes
         byte[] decodedJson = Base64.getDecoder().decode(serviceAccountBase64);
-
-        // Wrap decoded bytes into InputStream
         ByteArrayInputStream jsonStream = new ByteArrayInputStream(decodedJson);
-
-        // Create credentials from InputStream
         GoogleCredentials credentials = GoogleCredentials.fromStream(jsonStream)
                 .createScoped(Collections.singleton(ANDROID_MANAGEMENT_SCOPE));
 
@@ -46,9 +41,7 @@ public class AndroidManagementConfig {
     @Bean
     public  String androidAccessToken() throws Exception {
         byte[] decodedJson = Base64.getDecoder().decode(serviceAccountBase64);
-        // Wrap decoded bytes into InputStream
         ByteArrayInputStream jsonStream = new ByteArrayInputStream(decodedJson);
-        // Create credentials from InputStream
         GoogleCredentials credentials = GoogleCredentials.fromStream(jsonStream)
                 .createScoped(Collections.singleton(ANDROID_MANAGEMENT_SCOPE));
         credentials.refreshIfExpired();

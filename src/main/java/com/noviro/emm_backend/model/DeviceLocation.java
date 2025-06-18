@@ -6,15 +6,17 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+@Data
 @Entity
 public class DeviceLocation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String deviceSerialNumber;
     private String amDeviceSerialNumber;
+    private String androidId;
+    private String deviceIdentifier;
     private LocalDateTime createdAt;
     private Double latitude;
     private Double longitude;
