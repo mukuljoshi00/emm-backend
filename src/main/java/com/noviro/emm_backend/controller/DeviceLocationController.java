@@ -1,5 +1,6 @@
 package com.noviro.emm_backend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.services.androidmanagement.v1.model.ListDevicesResponse;
 import com.noviro.emm_backend.androidapimanagement.EnterpriseService;
 import com.noviro.emm_backend.model.Device;
@@ -23,58 +24,63 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DeviceLocationController {
 
     @Autowired
-    private DeviceLocationRepository deviceLocationRepository;
-
-    @Autowired
     DeviceService deviceService;
-
     @Autowired
     EnterpriseService enterpriseService;
+    @Autowired
+    private DeviceLocationRepository deviceLocationRepository;
 
     @Transactional(rollbackOn = Exception.class)
     @PostMapping("/update")
     public ResponseEntity<?> updateLocation(@RequestBody LocationUpdateRequest request) throws IOException {
-        try{
-        Optional<DeviceLocation> existing = deviceLocationRepository.findByDeviceSerialNumber(request.getSerialNumber());
-        DeviceLocation location = existing.orElseGet(DeviceLocation::new);
-        location.setDeviceSerialNumber(request.getSerialNumber());
-        if (location.getCreatedAt() == null) {
-            location.setCreatedAt(LocalDateTime.now());
-        }
-        location.setLatitude(request.getLatitude());
-        location.setLongitude(request.getLongitude());
-        location.setLastUpdated(LocalDateTime.now());
-        location.setAndroidId(request.androidId);
-        location.setDeviceIdentifier(request.deviceIdentifier);
-        if(!location.isLinkedToDevice()){
-            deviceLocationRepository.save(location);
-            return ResponseEntity.ok().build();
-        }
-        //save device ids with device table
-        Device device=deviceService.getDeviceByTemporaryId(request.getDeviceIdentifier());
-        if(device != null) {
-            device.setAndroidId(request.getAndroidId());
-            device.setStatus("ONLINE");
-            String policyName=device.getOrganization().getEnterpriseName()+"/policies/"+device.getPolicyId();
-            getDeviceId(policyName,device,location);
-            enterpriseService.updateDevicePolicy(device.getOrganization().getEnterpriseName(), device.getDeviceId(),"policy1");
-            device.setPolicyId("policy1");
-            deviceService.saveDevice(device);
-            location.setLinkedToDevice(true);
-            deviceLocationRepository.save(location);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().body("Device not found for identifier: " + request.getDeviceIdentifier());
-        }}catch (Exception e){
+        try {
+            ObjectMapper ob=new ObjectMapper();
+            System.out.println("update location called with request: " + ob.writeValueAsString(request));
+            Optional<DeviceLocation> existing = deviceLocationRepository.findByDeviceSerialNumber(request.getSerialNumber());
+            DeviceLocation location = existing.orElseGet(DeviceLocation::new);
+            location.setDeviceSerialNumber(request.getSerialNumber());
+            if (location.getCreatedAt() == null) {
+                location.setCreatedAt(LocalDateTime.now());
+            }
+            location.setLatitude(request.getLatitude());
+            location.setLongitude(request.getLongitude());
+            location.setLastUpdated(LocalDateTime.now());
+            location.setAndroidId(request.androidId);
+            location.setDeviceIdentifier(request.deviceIdentifier);
+            System.out.println(ob.writeValueAsString(location));
+            if (!location.isLinkedToDevice()) {
+                deviceLocationRepository.save(location);
+                System.out.println("device already linked");
+                return ResponseEntity.ok().build();
+            }
+            //save device ids with device table
+            Device device = deviceService.getDeviceByTemporaryId(request.getDeviceIdentifier());
+            if (device != null) {
+                device.setAndroidId(request.getAndroidId());
+                device.setStatus("ONLINE");
+                String policyName = device.getOrganization().getEnterpriseName() + "/policies/" + device.getPolicyId();
+                getDeviceId(policyName, device, location);
+                enterpriseService.updateDevicePolicy(device.getOrganization().getEnterpriseName(), device.getDeviceId(), "policy1");
+                device.setPolicyId("policy1");
+                deviceService.saveDevice(device);
+                location.setLinkedToDevice(true);
+                deviceLocationRepository.save(location);
+                System.out.println(ob.writeValueAsString(device));
+                System.out.println("updated device successfullly");
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().body("Device not found for identifier: " + request.getDeviceIdentifier());
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("An error occurred while updating the location: " + e.getMessage());
         }
     }
 
-    public String getDeviceId(String policyName,Device device,DeviceLocation deviceLocation) throws IOException {
+    public String getDeviceId(String policyName, Device device, DeviceLocation deviceLocation) throws IOException {
         String enterpriseId = device.getOrganization().getEnterpriseName();
-        ListDevicesResponse listDevicesResponse=enterpriseService.listDevices(enterpriseId);
-        AtomicReference<String> deviceId= new AtomicReference<>();
+        ListDevicesResponse listDevicesResponse = enterpriseService.listDevices(enterpriseId);
+        AtomicReference<String> deviceId = new AtomicReference<>();
         listDevicesResponse.getDevices().stream()
                 .filter(d -> d.getPolicyName().equals(policyName))
                 .findFirst()
@@ -87,7 +93,6 @@ public class DeviceLocationController {
         // In a real application, you might need to fetch this from a service or database
         return deviceId.get();
     }
-
 
 
     @GetMapping("/{serialNumber}")
@@ -115,12 +120,15 @@ public class DeviceLocationController {
         public String getDeviceIdentifier() {
             return deviceIdentifier;
         }
+
         public void setDeviceIdentifier(String deviceIdentifier) {
             this.deviceIdentifier = deviceIdentifier;
         }
+
         public String getAndroidId() {
             return androidId;
         }
+
         public void setAndroidId(String androidId) {
             this.androidId = androidId;
         }
